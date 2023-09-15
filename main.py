@@ -2,7 +2,10 @@ import pygame
 
 pygame.init()
 
-screen = pygame.display.set_mode((800, 800))
+screen = pygame.display.set_mode((800, 500))
+pygame.display.set_caption(("chess"))
+icon = pygame.image.load(("chess.png"))
+pygame.display.set_icon(icon)
 
 running = True
 while running:
