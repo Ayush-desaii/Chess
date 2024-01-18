@@ -6,7 +6,7 @@ import ChessEngine
 
 HEIGHT = WIDTH = 400
 DIMENSION = 8
-SQ_SIZE = HEIGHT / DIMENSION
+SQ_SIZE = int(HEIGHT / DIMENSION)
 MAX_FPS = 15
 IMAGES = {}
 
@@ -23,10 +23,29 @@ def main():
     gs = ChessEngine.GameState()
     load_images()
     running = True
+    sqSelected = ()
+    clicks = []
     while running:
         for e in p.event.get():
             if e.type == p.QUIT:
                 running = False
+            elif e.type == p.MOUSEBUTTONDOWN:
+                location = p.mouse.get_pos()
+                col = location[0]//SQ_SIZE
+                row = location[1]//SQ_SIZE
+                if sqSelected == (row, col):
+                    sqSelected = ()
+                    clicks = []
+                else:
+                    sqSelected = (row, col)
+                    clicks.append(sqSelected)
+                if len(clicks) == 2:
+                    move = ChessEngine.Move(clicks[0], clicks[1], gs.board)
+                    print(move.chess_notation())
+                    gs.makeMove(move)
+                    sqSelected = ()
+                    clicks = []
+
         draw_game_state(screen, gs)
         clock.tick(MAX_FPS)
         p.display.flip()
