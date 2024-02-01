@@ -45,7 +45,7 @@ def main():
                     clicks.append(sqSelected)
                 if len(clicks) == 2:
                     move = ChessEngine.Move(clicks[0], clicks[1], gs.board)
-                    print(move.chess_notation())
+                    print(move.chess_notation(), validMoves)
                     if move in validMoves:
                         gs.makeMove(move)
                         MoveMade = True
