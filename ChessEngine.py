@@ -13,12 +13,20 @@ class GameState():
         self.moveFunctions = {'P': self.getPawnMoves, 'R': self.getRookMoves, 'N': self.getKnightMoves, 'B': self.getBishopMoves, 'Q': self.getQueenMoves, 'K': self.getKingMoves}
         self.whiteToMove = True
         self.moveLog = []
+        self.whiteKingLocation = (7, 4)
+        self.blackKingLocation = (0, 4)
+        self.checkMate = False
+        self.staleMate = False
 
     def makeMove(self, move):
         self.board[move.strow][move.stcol] = "--"
         self.board[move.endrow][move.endcol] = move.piecemoved
         self.moveLog.append(move)
         self.whiteToMove = not self.whiteToMove
+        if move.piecemoved == 'wK':
+            self.whiteKingLocation = (move.endrow, move.endcol)
+        elif move.piecemoved == 'bK':
+            self.blackKingLocation = (move.endrow, move.endcol)
 
     def undoMove(self):
         if len(self.moveLog) != 0:
@@ -26,9 +34,45 @@ class GameState():
             self.board[move.strow][move.stcol] = move.piecemoved
             self.board[move.endrow][move.endcol] = move.piececap
             self.whiteToMove = not self.whiteToMove
+            if move.piecemoved == 'wK':
+                self.whiteKingLocation = (move.strow, move.stcol)
+            elif move.piecemoved == 'bK':
+                self.blackKingLocation = (move.strow, move.stcol)
 
     def getValidMoves(self):
-        return self.getAllMoves()
+        moves =  self.getAllMoves()
+        for i in range(len(moves)-1, -1, -1):
+            self.makeMove(moves[i])
+            self.whiteToMove = not self.whiteToMove
+            if self.inCheck():
+                moves.remove(moves[i])
+            self.whiteToMove = not self.whiteToMove
+            self.undoMove()
+        if len(moves) == 0:
+            if self.inCheck():
+                self.checkMate = True
+            else:
+                self.staleMate = True
+        else:
+            self.checkMate = False
+            self.staleMate = False
+        return moves
+
+    def inCheck(self):
+        if self.whiteToMove:
+            return self.squareUnderAttack(self.whiteKingLocation[0], self.whiteKingLocation[1])
+        else:
+            return self.squareUnderAttack(self.blackKingLocation[0], self.blackKingLocation[1])
+        
+    def squareUnderAttack(self, r, c):
+        self.whiteToMove = not self.whiteToMove
+        oppMoves = self.getAllMoves()
+        self.whiteToMove = not self.whiteToMove
+        for move in oppMoves:
+            if move.endrow == r and move.endcol == c:
+                return True
+        return False
+
 
     def getAllMoves(self):
         moves = []
