@@ -23,48 +23,70 @@ def main():
     gs = ChessEngine.GameState()
     validMoves = gs.getValidMoves()
     MoveMade = False
-    
+
     load_images()
     running = True
     sqSelected = ()
     clicks = []
+    gameOver = False
 
     while running:
         for e in p.event.get():
             if e.type == p.QUIT:
                 running = False
             elif e.type == p.MOUSEBUTTONDOWN:
-                location = p.mouse.get_pos()
-                col = location[0]//SQ_SIZE
-                row = location[1]//SQ_SIZE
-                if sqSelected == (row, col):
-                    sqSelected = ()
-                    clicks = []
-                else:
-                    sqSelected = (row, col)
-                    clicks.append(sqSelected)
-                if len(clicks) == 2:
-                    move = ChessEngine.Move(clicks[0], clicks[1], gs.board)
-                    print(move.chess_notation(), validMoves)
-                    for i in range(len(validMoves)):
-                        if move == validMoves[i]:
-                            gs.makeMove(validMoves[i])
-                            MoveMade = True
-                            sqSelected = ()
-                            clicks = []
-                    if not MoveMade:
-                        clicks = [sqSelected]
+                if not gameOver:
+                    location = p.mouse.get_pos()
+                    col = location[0]//SQ_SIZE
+                    row = location[1]//SQ_SIZE
+                    if sqSelected == (row, col):
+                        sqSelected = ()
+                        clicks = []
+                    else:
+                        sqSelected = (row, col)
+                        clicks.append(sqSelected)
+                    if len(clicks) == 2:
+                        move = ChessEngine.Move(clicks[0], clicks[1], gs.board)
+                        print(move.chess_notation(), validMoves)
+                        for i in range(len(validMoves)):
+                            if move == validMoves[i]:
+                                gs.makeMove(validMoves[i])
+                                MoveMade = True
+                                sqSelected = ()
+                                clicks = []
+                        if not MoveMade:
+                            clicks = [sqSelected]
 
             elif e.type == p.KEYDOWN:
                 if e.key == p.K_z:
                     gs.undoMove()
                     MoveMade = True
+                    animate = False
+                if e.key == p.K_r: #reset board when "r" is pressed
+                    gs = ChessEngine.GameState()
+                    validMoves = gs.getValidMoves()
+                    sqSelected = ()
+                    playerClicks = []
+                    MoveMade = False
+                    animate = False
+
 
         if MoveMade:
             validMoves = gs.getValidMoves()
             MoveMade = False
 
         draw_game_state(screen, gs, validMoves, sqSelected)
+
+        if gs.checkMate:
+            gameOver = True
+            if gs.whiteToMove:
+                drawText(screen, "Black wins by checkmate")
+            else:
+                drawText(screen, "White wins by checkmate")
+        elif gs.staleMate:
+            gameOver = True
+            drawText(screen, "Stalemate")
+
         clock.tick(MAX_FPS)
         p.display.flip()
 
@@ -90,6 +112,7 @@ def draw_game_state(screen, gs, validMoves, sqSelected):
     draw_pieces(screen, gs.board) #draw pieces on the top of the sq
 
 def draw_board(screen):
+    global colors
     colors = [p.Color("white"), p.Color("grey")]
     for r in range(DIMENSION):
         for c in range(DIMENSION):
@@ -102,6 +125,14 @@ def draw_pieces(screen, board):
             piece = board[r][c]
             if piece != "--":
                 screen.blit(IMAGES[piece], p.Rect(c*SQ_SIZE, r*SQ_SIZE, SQ_SIZE, SQ_SIZE))
+
+def drawText(screen, text):
+    font = p.font.SysFont("Helvitca", 46, True, False)
+    textObject = font.render(text, 0, p.Color('Gray'))
+    textLocation = p.Rect(0, 0, WIDTH, HEIGHT).move(WIDTH/2 - textObject.get_width()/2, HEIGHT/2 - textObject.get_height()/2)
+    screen.blit(textObject, textLocation)
+    textObject = font.render(text, 0, p.Color('Black'))
+    screen.blit(textObject, textLocation.move(2, 2))
 
 if __name__ == "__main__":
     main()
