@@ -1,8 +1,5 @@
 import pygame as p 
-"""import sys
-print(sys.path)
-"""
-import ChessEngine
+import ChessEngine, AiMove
 
 HEIGHT = WIDTH = 400
 DIMENSION = 8
@@ -29,13 +26,16 @@ def main():
     sqSelected = ()
     clicks = []
     gameOver = False
+    playerOne = True
+    playerTwo = False
 
     while running:
+        humanTurn = (gs.whiteToMove and playerOne) or (not gs.whiteToMove and playerTwo)
         for e in p.event.get():
             if e.type == p.QUIT:
                 running = False
             elif e.type == p.MOUSEBUTTONDOWN:
-                if not gameOver:
+                if not gameOver and humanTurn:
                     location = p.mouse.get_pos()
                     col = location[0]//SQ_SIZE
                     row = location[1]//SQ_SIZE
@@ -61,14 +61,19 @@ def main():
                 if e.key == p.K_z:
                     gs.undoMove()
                     MoveMade = True
-                    animate = False
+
                 if e.key == p.K_r: #reset board when "r" is pressed
                     gs = ChessEngine.GameState()
                     validMoves = gs.getValidMoves()
                     sqSelected = ()
                     playerClicks = []
                     MoveMade = False
-                    animate = False
+
+        #ai move
+        if not gameOver and not humanTurn:
+            AIMove = AiMove.findRandomMove(validMoves)
+            gs.makeMove(AIMove)
+            MoveMade = True
 
 
         if MoveMade:
