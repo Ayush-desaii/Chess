@@ -71,7 +71,7 @@ def main():
 
         #ai move
         if not gameOver and not humanTurn:
-            AIMove = AiMove.findRandomMove(validMoves)
+            AIMove = AiMove.findBestMove(gs, validMoves)
             gs.makeMove(AIMove)
             MoveMade = True
 
