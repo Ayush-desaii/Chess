@@ -61,6 +61,7 @@ def main():
                 if e.key == p.K_z:
                     gs.undoMove()
                     MoveMade = True
+                    gameOver = False
 
                 if e.key == p.K_r: #reset board when "r" is pressed
                     gs = ChessEngine.GameState()
@@ -68,10 +69,11 @@ def main():
                     sqSelected = ()
                     playerClicks = []
                     MoveMade = False
+                    gameOver = False
 
         #ai move
         if not gameOver and not humanTurn:
-            AIMove = AiMove.findBestMove(gs, validMoves)
+            AIMove = AiMove.findBestMoveMinMax(gs, validMoves)
             gs.makeMove(AIMove)
             MoveMade = True
 
