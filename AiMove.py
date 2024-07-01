@@ -58,7 +58,7 @@ def findMoveMinMax(gs, validMoves, depth, whiteToMove):
         for move in validMoves:
             gs.makeMove(move)
             nextMoves = gs.getValidMoves()
-            score = findMoveMinMax(gs, nextMove, depth - 1, False)
+            score = findMoveMinMax(gs, nextMoves, depth - 1, False)
             if score > maxScore:
                 maxScore = score
                 if depth == DEPTH:
@@ -70,8 +70,8 @@ def findMoveMinMax(gs, validMoves, depth, whiteToMove):
         minScore = CHECKMATE
         for move in validMoves:
             gs.makeMove(move)
-            nextMove = gs.getValidMoves()
-            score = findMoveMinMax(gs, nextMove, depth - 1, True)
+            nextMoves = gs.getValidMoves()
+            score = findMoveMinMax(gs, nextMoves, depth - 1, True)
             if score < minScore:
                 minScore = score
                 if depth == DEPTH:
