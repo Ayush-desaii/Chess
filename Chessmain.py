@@ -26,8 +26,8 @@ def main():
     sqSelected = ()
     clicks = []
     gameOver = False
-    playerOne = True
-    playerTwo = False
+    playerOne = True #True for playing manualy, False for ai
+    playerTwo = True
 
     while running:
         humanTurn = (gs.whiteToMove and playerOne) or (not gs.whiteToMove and playerTwo)
