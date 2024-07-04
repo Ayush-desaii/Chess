@@ -84,18 +84,28 @@ def main():
 
         draw_game_state(screen, gs, validMoves, sqSelected)
 
-        if gs.checkMate:
+        if gs.checkMate or gs.staleMate:
             gameOver = True
-            if gs.whiteToMove:
-                drawText(screen, "Black wins by checkmate")
-            else:
-                drawText(screen, "White wins by checkmate")
-        elif gs.staleMate:
-            gameOver = True
-            drawText(screen, "Stalemate")
+            drawText(screen, "Stalemate" if gs.staleMate else "Black wins by checkmate" if gs.whiteToMove else "White wins by checkmate")
+
 
         clock.tick(MAX_FPS)
         p.display.flip()
+
+#graphics within current gamestate
+def draw_game_state(screen, gs, validMoves, sqSelected):
+    draw_board(screen) #draw sq on the board
+    highlightSquares(screen, gs, validMoves, sqSelected)
+    draw_pieces(screen, gs.board) #draw pieces on the top of the sq
+
+#draw the board 
+def draw_board(screen):
+    global colors
+    colors = [p.Color("white"), p.Color("grey")]
+    for r in range(DIMENSION):
+        for c in range(DIMENSION):
+            color = colors[((r + c) % 2)]
+            p.draw.rect(screen, color, p.Rect(c*SQ_SIZE, r*SQ_SIZE, SQ_SIZE, SQ_SIZE))
 
 # square selection to show moves
 def highlightSquares(screen, gs, validMoves, sqSelected):
@@ -113,19 +123,7 @@ def highlightSquares(screen, gs, validMoves, sqSelected):
                 if move.strow == r and move.stcol == c:
                     screen.blit(s, (move.endcol*SQ_SIZE, move.endrow*SQ_SIZE))
 
-def draw_game_state(screen, gs, validMoves, sqSelected):
-    draw_board(screen) #draw sq on the board
-    highlightSquares(screen, gs, validMoves, sqSelected)
-    draw_pieces(screen, gs.board) #draw pieces on the top of the sq
-
-def draw_board(screen):
-    global colors
-    colors = [p.Color("white"), p.Color("grey")]
-    for r in range(DIMENSION):
-        for c in range(DIMENSION):
-            color = colors[((r + c) % 2)]
-            p.draw.rect(screen, color, p.Rect(c*SQ_SIZE, r*SQ_SIZE, SQ_SIZE, SQ_SIZE))
-
+#draw pieces on the board from current gamestate
 def draw_pieces(screen, board):
     for r in range(DIMENSION):
         for c in range(DIMENSION):
@@ -133,6 +131,7 @@ def draw_pieces(screen, board):
             if piece != "--":
                 screen.blit(IMAGES[piece], p.Rect(c*SQ_SIZE, r*SQ_SIZE, SQ_SIZE, SQ_SIZE))
 
+#draw text after win or stalemate
 def drawText(screen, text):
     font = p.font.SysFont("Helvitca", 46, True, False)
     textObject = font.render(text, 0, p.Color('Gray'))
